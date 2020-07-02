@@ -39,6 +39,7 @@ namespace Wham
                 CacheId = $"Wham_Worker_{Configuration.GetValue<string>("Version")}",
                 Strategy = ServiceWorkerStrategy.CacheFirstSafe,
                 RoutesToPreCache = "/, /Home, /Home/Index, /Home/Help, /VersusCOM",
+                AllowHttp = true
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
