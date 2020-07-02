@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div id="home">
+    <template>
+        <div>
+            <p v-if="!messages.length">No messages yet</p>
+            <p v-for="msg in messages">{{msg.user}} - {{msg.message}}</p>
+        </div>
+
+        <input v-model="user" placeholder="username here" />
+
+        <br /><br />
+
+        <input v-model="message" placeholder="message here" />
+
+        <button :disabled="!valid || !ready" v-on:click="sendMessage()">Send message</button>
+    </template>
+</div>
+
+@section Scripts {
+    <script>
+        var connection = new signalR.HubConnectionBuilder().withUrl('/coreHub').build();
+
+        var app = new Vue({
+            el: '#home',
+            data: {
+                messages: [],
+                user: '',
+                message: '',
+                ready: false
+            },
+            mounted: function() {
+                connection.start().then(function() {
+                    this.ready = true;
+                }.bind(this)).catch(function (err) {
+                    this.ready = false;
+                    console.error(err);
+                }.bind(this));
+
+                connection.on('message', function (user, message) {
+                    this.messages.push({ user, message });
+                }.bind(this)); 
+            },
+            computed: {
+                valid: function() {
+                    return this.message && this.user;
+                }
+            },
+            methods: {
+                sendMessage: async function() {
+                    try {
+                        connection.invoke("SendMessage", this.user, this.message);
+                        this.message = ''; 
+                    }
+                    catch (err) {
+                        console.error(err);
+                    };
+                }
+            }
+        })
+    </script>
+}

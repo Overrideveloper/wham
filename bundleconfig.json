@@ -1,0 +1,32 @@
+[
+    {
+        "outputFileName": "wwwroot/css/site.min.css",
+        "inputFiles": [
+            "wwwroot/css/site.css",
+            "wwwroot/css/home.css",
+            "wwwroot/css/help.css",
+            "wwwroot/css/versuscom.css"
+        ]
+    },
+    {
+        "outputFileName": "wwwroot/js/site.min.js",
+        "inputFiles": [
+            "wwwroot/js/site.js",
+            "wwwroot/js/home.js"
+        ],
+        "minify": {
+          "enabled": true,
+          "renameLocals": true
+        }
+    },
+    {
+        "outputFileName": "wwwroot/js/polyfills.min.js",
+        "inputFiles": [
+            "wwwroot/js/polyfills.js"
+        ],
+        "minify": {
+          "enabled": true,
+          "renameLocals": true
+        }
+    }
+]

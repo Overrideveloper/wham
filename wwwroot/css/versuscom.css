@@ -1,0 +1,89 @@
+.versuscom__page {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 2rem 1rem;
+    margin-bottom: 40px;
+    box-sizing: border-box;
+}
+
+.versuscom__title {
+    color: var(--primary-color);
+    font-size: 40px;
+}
+
+.versuscom__scoreboard {
+    min-width: 50%;
+    max-width: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.versuscom__board {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: var(--secondary-color);
+}
+
+.versuscom__board--info {
+    margin: 0 1rem;
+    color: var(--primary-color);
+}
+
+.versuscom__board__info {
+    font-size: 16px;
+    text-align: center;
+}
+
+.versuscom__board__score {
+    font-size: 40px;
+}
+
+.versuscom__board__player {
+    font-size: 16px;
+}
+
+.versuscom__board__role {
+    color: var(--primary-color);
+    font-size: 13px;
+    margin-top: 4px;
+    text-transform: capitalize;
+}
+
+.versuscom__canvas {
+    width: 80%;
+    height: auto;
+    margin-top: 2rem;
+}
+
+.versuscom__canvas__table {
+    border: 2px solid var(--primary-color);
+    width: 100%;
+    height: auto;
+}
+
+.versuscom__table__cell {
+    width: 33.3%;
+    height: 80px;
+    border: 1px solid white;
+    cursor: pointer;
+}
+
+.versuscom__table__cell--disabled {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+@media screen and (min-width: 992px) {
+    .versuscom__canvas {
+        width: 40%;
+    }
+
+    .versuscom__table__cell {
+        height: 100px;
+    }
+}

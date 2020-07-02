@@ -1,0 +1,368 @@
+@{
+    ViewData["Title"] = "Versus COM";
+}
+
+<div class="versuscom__page" id="versuscom" v-cloak>
+    <h5 class="versuscom__title">Versus COM</h5>
+
+    <div class="versuscom__scoreboard">
+        <div class="versuscom__board" id="PLAYER">
+            <h4 class="versuscom__board__score">{{ PLAYER_SCORE }}</h4>
+            <h6 class="versuscom__board__player">You</h6>
+            <span class="versuscom__board__role">{{ PLAYER_ROLE }}</span>
+        </div>
+        <div class="versuscom__board versuscom__board--info" id="INFO">
+            <h4 class="versuscom__board__info">{{ INFO }}</h4>
+        </div>
+        <div class="versuscom__board" id="COM">
+            <h4 class="versuscom__board__score">{{ COM_SCORE }}</h4>
+            <h6 class="versuscom__board__player">COM</h6>
+            <span class="versuscom__board__role">{{ COM_ROLE }}</span>
+        </div>
+    </div>
+
+    <div class="versuscom__canvas">
+        <table class="versuscom__canvas__table">
+            <tbody>
+                <tr>
+                    <td class="versuscom__table__cell" id="cell__1" v-on:click="cellClick" v-on:mouseover="cellMouseOver" v-on:mouseout="cellMouseOut"></td>
+                    <td class="versuscom__table__cell" id="cell__2" v-on:click="cellClick" v-on:mouseover="cellMouseOver" v-on:mouseout="cellMouseOut"></td>
+                    <td class="versuscom__table__cell" id="cell__3" v-on:click="cellClick" v-on:mouseover="cellMouseOver" v-on:mouseout="cellMouseOut"></td>
+                </tr>
+                <tr>
+                    <td class="versuscom__table__cell" id="cell__4" v-on:click="cellClick" v-on:mouseover="cellMouseOver" v-on:mouseout="cellMouseOut"></td>
+                    <td class="versuscom__table__cell" id="cell__5" v-on:click="cellClick" v-on:mouseover="cellMouseOver" v-on:mouseout="cellMouseOut"></td>
+                    <td class="versuscom__table__cell" id="cell__6" v-on:click="cellClick" v-on:mouseover="cellMouseOver" v-on:mouseout="cellMouseOut"></td>
+                </tr>
+                <tr>
+                    <td class="versuscom__table__cell" id="cell__7" v-on:click="cellClick" v-on:mouseover="cellMouseOver" v-on:mouseout="cellMouseOut"></td>
+                    <td class="versuscom__table__cell" id="cell__8" v-on:click="cellClick" v-on:mouseover="cellMouseOver" v-on:mouseout="cellMouseOut"></td>
+                    <td class="versuscom__table__cell" id="cell__9" v-on:click="cellClick" v-on:mouseover="cellMouseOver" v-on:mouseout="cellMouseOut"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var versuscom = new Vue({
+            el: '#versuscom',
+            data: {
+                ROLES: { OFFENSE: 'OFFENSE', DEFENSE: 'DEFENSE' },
+                PLAYERS: { PLAYER: 'PLAYER', COM: 'COM' },
+                COLORS: { OFFENSE: 'var(--primary-color)', DEFENSE: 'var(--secondary-color)'},
+                PLAYER_ROLE: null,
+                COM_ROLE: null,
+                PLAYER_SCORE: 0,
+                COM_SCORE: 0,
+                PLAYER_CELL_SELECTED: null,
+                COM_CELL_SELECTED: null,
+                TURN: null,
+                INFO: '',
+                CELLS: []
+            },
+            mounted: function() {
+                this.$nextTick(function() {
+                    this.CELLS = Array.from(document.querySelectorAll('td.versuscom__table__cell'));
+
+                    this.setPlayerRole(this.PLAYERS.PLAYER, this.ROLES.DEFENSE);
+                    this.delay(this.setNextTurn.bind(this, this.PLAYERS.PLAYER));
+                }.bind(this))
+            },
+            methods: {
+                delay: function(fn, delay) {
+                    if (delay) {
+                        setTimeout(fn, delay);
+                        return;
+                    }
+
+                    setTimeout(fn, 1000);
+                },
+
+                setInfo: function(info) {
+                    this.INFO = info;
+                },
+
+                normalizeText: function(text) {
+                    if (typeof text === 'string') {
+                        return text[0].toUpperCase() + text.slice(1).toLowerCase();
+                    }
+
+                    throw new Error('Argument "text" must be a string');
+                },
+
+                toggleCellState: function(enable) {
+                    if (typeof enable === 'boolean') {
+                        this.CELLS.map(cell => {
+                            if (enable) {
+                                cell.style.pointerEvents = 'all';
+                            } else {
+                                cell.style.pointerEvents = 'none';
+                            }
+                        });
+
+                        return;
+                    }
+
+                    throw new Error("Argument 'enable' must be a boolean");
+                },
+
+                setNextTurn: function(PLAYER) {
+                    this.TURN = PLAYER;
+
+                    switch (PLAYER) {
+                        case this.PLAYERS.COM:
+                            this.toggleCellState(false);
+                            this.setInfo('COM\'s turn');
+                            break;
+                        case this.PLAYERS.PLAYER:
+                            this.toggleCellState(true);
+                            this.setInfo('Your turn');
+                            break;
+                        default:
+                            throw new Error('PLAYER NOT REGISTERED');
+                    }
+                },
+
+                setPlayerRole: function(PLAYER, ROLE) {
+                    if (ROLE === this.ROLES.DEFENSE || ROLE === this.ROLES.OFFENSE) {
+                        if (PLAYER === this.PLAYERS.PLAYER) {
+                            this.PLAYER_ROLE = ROLE;
+
+                            if (ROLE === this.ROLES.DEFENSE) {
+                                this.COM_ROLE = this.ROLES.OFFENSE;
+                            } else {
+                                this.COM_ROLE = this.ROLES.DEFENSE;
+                            }
+
+                            this.setInfo('You are on ' + this.normalizeText(ROLE));
+                            return;
+                        }
+
+                        throw new Error("Role can only be set for PLAYER");
+                    }
+
+                    throw new Error("Valid roles are 'OFFENSE' and 'DEFENSE'");
+                },
+
+                cellMouseOver: function(event) {
+                    var cell = event.target;
+
+                    if (this.TURN === this.PLAYERS.PLAYER) {
+                        if (this.PLAYER_ROLE === this.ROLES.OFFENSE) {
+                            cell.style.backgroundColor = this.COLORS.OFFENSE;
+                        } else {
+                            cell.style.backgroundColor = this.COLORS.DEFENSE;
+                        }
+                    }
+                },
+
+                cellClick: function(event) {
+                    var cell = event.target;
+
+                    if (this.TURN === this.PLAYERS.PLAYER) {
+                        if (this.PLAYER_ROLE === this.ROLES.OFFENSE) {
+                            cell.style.backgroundColor = this.COLORS.OFFENSE;
+                        } else {
+                            cell.style.backgroundColor = this.COLORS.DEFENSE;
+                        }
+
+                        this.PLAYER_CELL_SELECTED = cell;
+                        this.playerCOMMoveEffects();
+                    }
+                },
+
+                cellMouseOut: function(event) {
+                    var cell = event.target;
+
+                    if (!this.PLAYER_CELL_SELECTED || (this.PLAYER_CELL_SELECTED && cell.id !== this.PLAYER_CELL_SELECTED.id)) {
+                        cell.style.backgroundColor = 'transparent';
+                    }
+                },
+
+                playerCOMMoveEffects: function() {
+                    if (this.TURN === this.PLAYERS.PLAYER) {
+                        if (this.PLAYER_ROLE === this.ROLES.DEFENSE) {
+                            this.setNextTurn(this.PLAYERS.COM);
+                            this.delay(this.comMove);
+                        } else {
+                            this.computeRoundResults(this.PLAYERS.PLAYER);
+                        }
+                    } else {
+                        if (this.COM_ROLE === this.ROLES.DEFENSE) {
+                            this.delay(this.setNextTurn.bind(this, this.PLAYERS.PLAYER));
+                        }
+
+                        if (this.COM_ROLE === this.ROLES.OFFENSE) {
+                            this.computeRoundResults(this.PLAYERS.COM);
+                        }
+                    }
+                },
+
+                displayCOMCell: function() {
+                    if (this.COM_ROLE === this.ROLES.DEFENSE) {
+                        this.COM_CELL_SELECTED.style.backgroundColor = this.COLORS.DEFENSE;
+                    } else {
+                        this.COM_CELL_SELECTED.style.backgroundColor = this.COLORS.OFFENSE;
+                    }
+                },
+
+                computeRoundResults: function(OFFENSE_PLAYER) {
+                    this.toggleCellState(false);
+                    this.displayCOMCell();
+
+                    var startNextRound;
+                    var disableCell;
+                    var isRoundWon;
+
+                    if (OFFENSE_PLAYER === this.PLAYERS.COM || OFFENSE_PLAYER === this.PLAYERS.PLAYER) {
+                        if (this.PLAYER_CELL_SELECTED.id === this.COM_CELL_SELECTED.id) {
+                            isRoundWon = true;
+
+                            if (OFFENSE_PLAYER === this.PLAYERS.COM) {
+                                this.COM_SCORE += 1;
+
+                                this.setInfo('COM wins this round');
+
+                                startNextRound = function(delay) {
+                                    this.delay(function() {
+                                        this.setPlayerRole(this.PLAYERS.PLAYER, this.ROLES.DEFENSE);
+                                        this.delay(this.setNextTurn.bind(this, this.PLAYERS.PLAYER));
+                                    }.bind(this), delay);
+                                }
+                            } else {
+                                this.PLAYER_SCORE += 1;
+
+                                this.setInfo('You win this round');
+
+                                startNextRound = function(delay) {
+                                    this.delay(function() {
+                                        this.setPlayerRole(this.PLAYERS.PLAYER, this.ROLES.OFFENSE);
+
+                                        this.delay(function () {
+                                            this.setNextTurn(this.PLAYERS.COM);
+                                            this.delay(this.comMove);
+                                        }.bind(this));
+                                    }.bind(this), delay);
+                                }
+                            }
+
+                            var disableCell = function(callback) {
+                                this.PLAYER_CELL_SELECTED.classList.add('versuscom__table__cell--disabled');
+                                this.CELLS.splice(this.CELLS.findIndex(function(cell) {
+                                    return cell.id === this.PLAYER_CELL_SELECTED.id;
+                                }.bind(this)), 1);
+
+                                if (callback) {
+                                    this.delay(callback);
+                                }
+                            }
+                        } else {
+                            this.setInfo('No winner. Switching roles.');
+
+                            if (OFFENSE_PLAYER === this.PLAYERS.COM) {
+                                startNextRound = function() {
+                                    this.delay(function() {
+                                        this.setPlayerRole(this.PLAYERS.PLAYER, this.ROLES.OFFENSE);
+
+                                        this.delay(function () {
+                                            this.setNextTurn(this.PLAYERS.COM);
+                                            this.delay(this.comMove)
+                                        }.bind(this));
+                                    }.bind(this));
+                                }
+                            } else {
+                                startNextRound = function() {
+                                    this.delay(function() {
+                                        this.setPlayerRole(this.PLAYERS.PLAYER, this.ROLES.DEFENSE);
+                                        this.delay(this.setNextTurn.bind(this, this.PLAYERS.PLAYER))
+                                    }.bind(this));
+                                }
+                            }
+                        }
+
+                        var next = function(delay) {
+                            if (this.CELLS.length > 1) {
+                                this.PLAYER_CELL_SELECTED.style.backgroundColor = 'transparent';
+                                this.COM_CELL_SELECTED.style.backgroundColor = 'transparent';
+                                this.COM_CELL_SELECTED = null;
+                                this.PLAYER_CELL_SELECTED = null;
+
+                                startNextRound.call(this, delay);
+                            } else {
+                                this.delay(function() {
+                                    var endOfMatchMsg;
+
+                                    if (this.PLAYER_SCORE > this.COM_SCORE) {
+                                        endOfMatchMsg = 'You win! Play again?';
+                                    } else if (this.COM_SCORE > this.PLAYER_SCORE) {
+                                        endOfMatchMsg = 'COM wins! Play again?';
+                                    } else {
+                                        endOfMatchMsg = 'It\'s a tie! Play again?'
+                                    }
+
+                                    var isReplay = confirm(endOfMatchMsg);
+
+                                    if (isReplay) {
+                                        if (Turbolinks.supported) {
+                                            Turbolinks.visit('/VersusCOM', { action: 'replace' });
+                                        } else {
+                                            window.location.pathname = 'VersusCOM';
+                                        }
+                                    } else {
+                                        history.back();
+                                    }
+                                }.bind(this));
+                            }
+                        };
+
+                        var disableCellThenNext = function(delay) {
+                            if (disableCell) {
+                                this.delay(disableCell.bind(this, next.bind(this, delay)), delay);
+                            } else {
+                                this.delay(next.bind(this, delay), delay);
+                            }   
+                        }.bind(this);
+
+                        if (isRoundWon) {
+                            var color1 = this.COLORS.DEFENSE;
+                            var color2 = this.COLORS.OFFENSE;
+
+                            if (this.PLAYER_ROLE === this.ROLES.DEFENSE) {
+                                color1 = this.COLORS.OFFENSE;
+                                color2 = this.COLORS.DEFENSE;
+                            }
+
+                            var interval1 = setInterval(function() {
+                                this.PLAYER_CELL_SELECTED.style.backgroundColor = color1;
+                            }.bind(this), 500);
+
+                            var interval2 = setInterval(function() {
+                                this.PLAYER_CELL_SELECTED.style.backgroundColor = color2;
+                            }.bind(this), 1000);
+
+                            this.delay(function() {
+                                clearTimeout(interval1);
+                                clearTimeout(interval2);
+                                disableCellThenNext(500);
+                            }.bind(this), 2000);
+                        } else {
+                            disableCellThenNext();
+                        }
+
+                        return;
+                    }
+
+                    throw new Error("PLAYER NOT REGISTERED");
+                },
+
+                comMove: function() {
+                    this.COM_CELL_SELECTED = this.CELLS[Math.floor(Math.random() * this.CELLS.length)];
+
+                    this.delay(this.playerCOMMoveEffects);
+                }
+            }
+        });
+    </script>
+}

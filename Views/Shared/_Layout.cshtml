@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <title>@ViewData["Title"] - Wham</title>
+
+    <environment include="Development">
+        <script src="~/js/vue/dist/vue.js"></script>
+        <script src="~/js/signalr/dist/browser/signalr.js"></script>
+        <script src="~/js/turbolinks/dist/turbolinks.js"></script>
+        <script src="~/js/polyfills.js"></script>
+    </environment>
+
+    <environment exclude="Development">
+        <script src="https://unpkg.com/vue@2.6.11/dist/vue.min.js"></script>
+        <script src="~/js/signalr/dist/browser/signalr.min.js" asp-append-version="true"></script>
+        <script src="https://www.unpkg.com/turbolinks@5.2.0/dist/turbolinks.js"></script>
+        <script src="~/js/polyfills.min.js" asp-append-version="true"></script>
+    </environment>
+    
+    <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true"/>
+</head>
+<body>
+    <div id="app">
+        @RenderBody()
+    </div>
+
+    <partial name="_FooterPartial" />
+
+    <script src="~/js/site.min.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false);
+
+    <partial name="_TurbolinksStart" />
+</body>
+</html>
