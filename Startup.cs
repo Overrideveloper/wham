@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WebEssentials.AspNetCore.Pwa;
 using Wham.Hubs;
 
 namespace Wham
@@ -33,6 +34,13 @@ namespace Wham
             });
 
             services.AddSignalR();
+
+            services.AddProgressiveWebApp(new PwaOptions {
+                CacheId = $"Wham_Worker_{Configuration.GetValue<string>("Version")}",
+                Strategy = ServiceWorkerStrategy.CacheFirstSafe,
+                RoutesToPreCache = "/, /Home, /Home/Index, /Home/Help, /VersusCOM",
+            });
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -47,12 +55,12 @@ namespace Wham
             {
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
+                
             }
+            app.UseHsts();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
 
             app.UseSignalR(routes => {
                 routes.MapHub<CoreHub>("/coreHub");
